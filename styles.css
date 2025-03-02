@@ -273,6 +273,21 @@ footer {
     border-radius: 20px;
 }
 
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #2563eb;
+    color: white;
+    padding: 8px;
+    z-index: 100;
+    transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
 @media (max-width: 768px) {
     header {
         padding: 40px 15px;
