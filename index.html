@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:;">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Paresh Yadav's Personal Website</title>
+</head>
+<body>
+    <header>
+        <h1>Paresh Yadav</h1>
+        <p>Welcome to my personal website!</p>
+        <nav>
+            <ul>
+                <li><a href="#about">About Me</a></li>
+                <li><a href="#portfolio">Portfolio</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="about">
+            <h2>About Me</h2>
+            <p>I'm a passionate individual with a love for technology and creativity.</p>
+        </section>
+        <section id="portfolio">
+            <h2>Portfolio</h2>
+            <p>Here are some of my projects.</p>
+        </section>
+        <section id="contact">
+            <h2>Contact</h2>
+            <form id="contactForm" onsubmit="return false;">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required maxlength="100" pattern="[A-Za-z0-9\s]+" title="Please use only letters, numbers and spaces">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required maxlength="100">
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" required maxlength="1000"></textarea>
+                <button type="submit">Send</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 Paresh Yadav. All rights reserved.</p>
+    </footer>
+
+    <!-- Chatbot Interface -->
+    <div class="chatbot-container">
+        <div class="chat-bubble" id="chatBubble">
+            <i class="fas fa-comments"></i>
+        </div>
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <h3>Chat with me</h3>
+                <button class="close-btn" id="closeChat">&times;</button>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input">
+                <input type="text" id="userInput" placeholder="Type your message...">
+                <button id="sendMessage">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
