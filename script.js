@@ -1,68 +1,152 @@
-// Utility function for sanitizing input
+'use strict';
+
+// Security utility functions
 const sanitizeInput = (input) => {
+    if (typeof input !== 'string') return '';
     const div = document.createElement('div');
     div.textContent = input;
     return div.innerHTML;
 };
 
-// Form validation
+const isValidInput = (input, maxLength = 100) => {
+    return typeof input === 'string' && 
+           input.trim().length > 0 && 
+           input.length <= maxLength &&
+           !/[<>{}]/g.test(input); // Basic XSS protection
+};
+
+// Rate limiting utility
+const createRateLimiter = (limit, interval) => {
+    const requests = new Map();
+    
+    return (key) => {
+        const now = Date.now();
+        const windowStart = now - interval;
+        
+        // Clean old entries
+        requests.forEach((timestamp, reqKey) => {
+            if (timestamp < windowStart) requests.delete(reqKey);
+        });
+        
+        // Check current requests
+        const currentCount = Array.from(requests.values())
+            .filter(timestamp => timestamp > windowStart)
+            .length;
+            
+        if (currentCount >= limit) return false;
+        
+        requests.set(key, now);
+        return true;
+    };
+};
+
+// Initialize rate limiters
+const messageRateLimiter = createRateLimiter(5, 10000); // 5 messages per 10 seconds
+const formRateLimiter = createRateLimiter(2, 60000);   // 2 form submissions per minute
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Form handling
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {
         contactForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const name = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const message = document.getElementById('message').value.trim();
 
-            // Basic validation
-            if (!name || !email || !message) {
-                alert('Please fill in all fields');
+            // Rate limiting
+            if (!formRateLimiter('submit')) {
+                alert('Please wait a moment before submitting again.');
+                return;
+            }
+
+            const name = document.getElementById('name')?.value.trim() ?? '';
+            const email = document.getElementById('email')?.value.trim() ?? '';
+            const message = document.getElementById('message')?.value.trim() ?? '';
+
+            // Enhanced validation
+            if (!isValidInput(name, 100) || !isValidInput(email, 100) || !isValidInput(message, 1000)) {
+                alert('Please check your input and try again.');
                 return;
             }
 
             // Email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             if (!emailRegex.test(email)) {
                 alert('Please enter a valid email address');
                 return;
             }
 
-            // Since this is a static site, we'll just show a success message
+            // Since this is a static site, show success message
             alert('Thank you for your message! This is a static site, so no message was actually sent.');
             contactForm.reset();
         });
     }
 
     // Chatbot functionality
-    const chatBubble = document.getElementById('chatBubble');
-    const chatWindow = document.getElementById('chatWindow');
-    const closeChat = document.getElementById('closeChat');
-    const userInput = document.getElementById('userInput');
-    const sendMessage = document.getElementById('sendMessage');
-    const chatMessages = document.getElementById('chatMessages');
+    const elements = {
+        chatBubble: document.getElementById('chatBubble'),
+        chatWindow: document.getElementById('chatWindow'),
+        closeChat: document.getElementById('closeChat'),
+        userInput: document.getElementById('userInput'),
+        sendMessage: document.getElementById('sendMessage'),
+        chatMessages: document.getElementById('chatMessages')
+    };
 
-    if (!chatBubble || !chatWindow || !closeChat || !userInput || !sendMessage || !chatMessages) {
+    // Validate all elements exist
+    if (!Object.values(elements).every(Boolean)) {
         console.error('Some chat elements are missing');
         return;
     }
 
-    // Toggle chat window
-    chatBubble.addEventListener('click', () => {
-        chatWindow.style.display = chatWindow.style.display === 'none' || chatWindow.style.display === '' ? 'flex' : 'none';
-    });
+    // Chat window toggle with security checks
+    const toggleChat = () => {
+        if (elements.chatWindow) {
+            elements.chatWindow.style.display = 
+                elements.chatWindow.style.display === 'none' || 
+                elements.chatWindow.style.display === '' ? 'flex' : 'none';
+        }
+    };
 
-    closeChat.addEventListener('click', () => {
-        chatWindow.style.display = 'none';
-    });
+    elements.chatBubble?.addEventListener('click', toggleChat);
+    elements.closeChat?.addEventListener('click', toggleChat);
 
-    // Send message function
+    // Secure message handling
+    const addMessage = (text, sender) => {
+        if (!isValidInput(text, 500) || !['user', 'bot'].includes(sender)) {
+            console.error('Invalid message format');
+            return;
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        messageDiv.textContent = text; // Safe from XSS
+
+        if (elements.chatMessages) {
+            elements.chatMessages.appendChild(messageDiv);
+            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+
+            // Limit number of messages
+            while (elements.chatMessages.children.length > 50) {
+                elements.chatMessages.removeChild(elements.chatMessages.firstChild);
+            }
+        }
+    };
+
+    // Send message with rate limiting
     const sendUserMessage = () => {
-        const message = userInput.value.trim();
-        if (message && message.length <= 500) { // Limit message length
+        if (!messageRateLimiter('message')) {
+            addMessage("Please wait a moment before sending more messages.", 'bot');
+            return;
+        }
+
+        const message = elements.userInput?.value.trim() ?? '';
+        
+        if (isValidInput(message, 500)) {
             const sanitizedMessage = sanitizeInput(message);
             addMessage(sanitizedMessage, 'user');
-            userInput.value = '';
+            
+            if (elements.userInput) {
+                elements.userInput.value = '';
+            }
+
             // Simulate bot response
             setTimeout(() => {
                 const botResponse = getBotResponse(sanitizedMessage);
@@ -71,54 +155,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Event listeners for sending messages
-    sendMessage.addEventListener('click', sendUserMessage);
-    userInput.addEventListener('keypress', (e) => {
+    // Event listeners
+    elements.sendMessage?.addEventListener('click', sendUserMessage);
+    elements.userInput?.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            e.preventDefault(); // Prevent default to handle submission manually
+            e.preventDefault();
             sendUserMessage();
         }
     });
 
-    // Add message to chat
-    const addMessage = (text, sender) => {
-        if (typeof text !== 'string' || typeof sender !== 'string') {
-            console.error('Invalid message format');
-            return;
-        }
-
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message', `${sender}-message`);
-        messageDiv.textContent = text; // Using textContent for automatic escaping
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // Limit number of messages to prevent memory issues
-        while (chatMessages.children.length > 50) {
-            chatMessages.removeChild(chatMessages.firstChild);
-        }
-    };
-
-    // Simple bot responses
+    // Secure bot responses
     const getBotResponse = (message) => {
+        if (!isValidInput(message)) return "I couldn't understand that message.";
+        
         message = message.toLowerCase();
-        // Using a map for responses instead of if-else
         const responses = new Map([
             ['hello', "Hello! How can I help you today?"],
             ['hi', "Hello! How can I help you today?"],
-            ['name', "I'm a chatbot assistant for Paresh Yadav's website!"],
-            ['contact', "You can contact Paresh through the contact form above or send an email directly."],
-            ['about', "Paresh is a passionate individual with a love for technology and creativity."],
-            ['portfolio', "You can check out Paresh's portfolio section above to see his projects!"]
+            ['name', "I'm a chatbot assistant for Paresh's website!"],
+            ['contact', "You can use the contact form above to get in touch."],
+            ['about', "I help visitors navigate this website."],
+            ['portfolio', "Check out the portfolio section above!"]
         ]);
 
-        // Find matching response
         for (const [key, response] of responses) {
             if (message.includes(key)) {
                 return response;
             }
         }
-        return "I'm not sure about that. Could you please be more specific or use the contact form for detailed inquiries?";
+        
+        return "I'm not sure about that. Please use the contact form for specific inquiries.";
     };
 
     // Welcome message

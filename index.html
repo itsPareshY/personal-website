@@ -3,70 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Paresh Yadav's personal website showcasing portfolio and projects">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Security Headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), camera=(), microphone=(), payment=()">
     <meta name="referrer" content="no-referrer">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:;">
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'none';
+        script-src 'self';
+        style-src 'self' https://cdnjs.cloudflare.com;
+        img-src 'self' data:;
+        font-src https://cdnjs.cloudflare.com;
+        connect-src 'none';
+        media-src 'none';
+        object-src 'none';
+        frame-src 'none';
+        worker-src 'none';
+        form-action 'none';
+        base-uri 'self';
+        manifest-src 'self';">
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="styles.css" as="style">
+    <link rel="preload" href="script.js" as="script">
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <title>Paresh Yadav's Personal Website</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" 
+          integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" 
+          crossorigin="anonymous" 
+          referrerpolicy="no-referrer">
+    
+    <title>Paresh Yadav - Personal Website</title>
 </head>
 <body>
-    <header>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <header role="banner">
         <h1>Paresh Yadav</h1>
         <p>Welcome to my personal website!</p>
-        <nav>
+        <nav role="navigation" aria-label="Main navigation">
             <ul>
-                <li><a href="#about">About Me</a></li>
-                <li><a href="#portfolio">Portfolio</a></li>
-                <li><a href="#contact">Contact</a></li>
+                <li><a href="#about" aria-label="About Me section">About Me</a></li>
+                <li><a href="#portfolio" aria-label="Portfolio section">Portfolio</a></li>
+                <li><a href="#contact" aria-label="Contact section">Contact</a></li>
             </ul>
         </nav>
     </header>
-    <main>
-        <section id="about">
-            <h2>About Me</h2>
+
+    <main id="main-content" role="main">
+        <section id="about" aria-labelledby="about-heading">
+            <h2 id="about-heading">About Me</h2>
             <p>I'm a passionate individual with a love for technology and creativity.</p>
         </section>
-        <section id="portfolio">
-            <h2>Portfolio</h2>
+
+        <section id="portfolio" aria-labelledby="portfolio-heading">
+            <h2 id="portfolio-heading">Portfolio</h2>
             <p>Here are some of my projects.</p>
         </section>
-        <section id="contact">
-            <h2>Contact</h2>
-            <form id="contactForm" onsubmit="return false;">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required maxlength="100" pattern="[A-Za-z0-9\s]+" title="Please use only letters, numbers and spaces">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required maxlength="100">
-                <label for="message">Message:</label>
-                <textarea id="message" name="message" required maxlength="1000"></textarea>
-                <button type="submit">Send</button>
+
+        <section id="contact" aria-labelledby="contact-heading">
+            <h2 id="contact-heading">Contact</h2>
+            <form id="contactForm" 
+                  onsubmit="return false;" 
+                  autocomplete="off" 
+                  novalidate 
+                  aria-label="Contact form">
+                
+                <!-- Honeypot field -->
+                <div aria-hidden="true" style="display:none">
+                    <input type="text" 
+                           name="website" 
+                           tabindex="-1" 
+                           autocomplete="off">
+                </div>
+                
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" 
+                           id="name" 
+                           name="name" 
+                           required 
+                           maxlength="100" 
+                           pattern="[A-Za-z0-9\s]+" 
+                           title="Please use only letters, numbers and spaces"
+                           autocomplete="off"
+                           spellcheck="false"
+                           aria-required="true"
+                           aria-describedby="name-error">
+                    <span id="name-error" class="error-message" role="alert" aria-live="polite"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           required 
+                           maxlength="100"
+                           pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                           autocomplete="off"
+                           spellcheck="false"
+                           aria-required="true"
+                           aria-describedby="email-error">
+                    <span id="email-error" class="error-message" role="alert" aria-live="polite"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Message:</label>
+                    <textarea id="message" 
+                            name="message" 
+                            required 
+                            maxlength="1000"
+                            spellcheck="false"
+                            aria-required="true"
+                            aria-describedby="message-error"></textarea>
+                    <span id="message-error" class="error-message" role="alert" aria-live="polite"></span>
+                </div>
+
+                <button type="submit" aria-label="Send message">Send</button>
             </form>
         </section>
     </main>
-    <footer>
+
+    <footer role="contentinfo">
         <p>&copy; 2025 Paresh Yadav. All rights reserved.</p>
     </footer>
 
     <!-- Chatbot Interface -->
-    <div class="chatbot-container">
-        <div class="chat-bubble" id="chatBubble">
-            <i class="fas fa-comments"></i>
-        </div>
-        <div class="chat-window" id="chatWindow">
+    <div class="chatbot-container" role="complementary" aria-label="Chat assistant">
+        <button class="chat-bubble" 
+                id="chatBubble" 
+                aria-label="Open chat"
+                aria-expanded="false"
+                aria-controls="chatWindow">
+            <i class="fas fa-comments" aria-hidden="true"></i>
+        </button>
+        
+        <div class="chat-window" 
+             id="chatWindow" 
+             role="dialog" 
+             aria-label="Chat window" 
+             aria-hidden="true">
             <div class="chat-header">
                 <h3>Chat with me</h3>
-                <button class="close-btn" id="closeChat">&times;</button>
+                <button class="close-btn" 
+                        id="closeChat" 
+                        aria-label="Close chat">&times;</button>
             </div>
-            <div class="chat-messages" id="chatMessages"></div>
-            <div class="chat-input">
-                <input type="text" id="userInput" placeholder="Type your message...">
-                <button id="sendMessage">Send</button>
+            <div class="chat-messages" 
+                 id="chatMessages" 
+                 role="log" 
+                 aria-live="polite"></div>
+            <div class="chat-input" role="form" aria-label="Chat message">
+                <input type="text" 
+                       id="userInput" 
+                       placeholder="Type your message..." 
+                       aria-label="Type your message"
+                       maxlength="500">
+                <button id="sendMessage" 
+                        aria-label="Send message">Send</button>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Scripts -->
+    <script src="script.js" defer></script>
 </body>
 </html>
