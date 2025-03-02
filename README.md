@@ -16,4 +16,4 @@ A modern personal website showcasing my portfolio and featuring an interactive c
 - Font Awesome for icons
 
 ## Live Website
-Visit the website at: https://[your-github-username].github.io/personal-website/
+Visit the website at: https://itsPareshY.github.io/personal-website/
